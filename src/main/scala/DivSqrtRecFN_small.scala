@@ -187,7 +187,7 @@ package hardfloat
 
 import chisel3._
 import chisel3.util._
-import hardfloat.consts._
+import consts._
 
 /*----------------------------------------------------------------------------
 | Computes a division or square root for floating-point in recoded form.
@@ -382,7 +382,7 @@ class
         processTwoBits && !newBit && (0.S < (rem_Z<<2)(sigWidth+2, 0).zext - trialTerm2_newBit0.zext) ||
         !(processTwoBits && newBit2) && nextNotZeroRem_Z
     val nextRem_Z_2 =
-        Mux(processTwoBits && newBit2,  trialRem2.asUInt()(sigWidth + 1, 0), 0.U) |
+        Mux(processTwoBits && newBit2,  trialRem2.asUInt(sigWidth + 1, 0), 0.U) |
         Mux(processTwoBits && !newBit2, rem2(sigWidth + 1, 0),               0.U) |
         Mux(!processTwoBits,            nextRem_Z,                           0.U)
 
