@@ -4,18 +4,17 @@ version := "1.5-SNAPSHOT"
 
 name := "hardfloat"
 
-scalaVersion := "2.12.15"
-
-scalacOptions += "-Xsource:2.11"
+scalaVersion := "2.13.10"
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases")
 )
 
-addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.5.0-RC2" cross CrossVersion.full)
-libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.5.0-RC2"
+addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.5.5" cross CrossVersion.full)
+libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.5.5"
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.0" % "test")
+libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
 Test / testForkedParallel := true
 
 publishMavenStyle := true

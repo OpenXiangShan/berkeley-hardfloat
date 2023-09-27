@@ -4,13 +4,14 @@ import mill.scalalib.publish._
 import coursier.maven.MavenRepository
 
 object v {
-  val scala = "2.12.15"
-  val chisel3 = ivy"edu.berkeley.cs::chisel3:3.5-SNAPSHOT"
-  val chisel3Plugin = ivy"edu.berkeley.cs:::chisel3-plugin:3.5-SNAPSHOT"
+  val scala = "2.13.8"
+  val chisel3 = ivy"edu.berkeley.cs::chisel3:3.5.4"
+  val chisel3Plugin = ivy"edu.berkeley.cs:::chisel3-plugin:3.5.4"
   val scalatest = ivy"org.scalatest::scalatest:3.2.0"
+  val scalapar = ivy"org.scala-lang.modules::scala-parallel-collections:1.0.4"
 }
 
-object hardfloat extends hardfloat 
+object hardfloat extends hardfloat
 
 class hardfloat extends ScalaModule with SbtModule with PublishModule { m =>
   def scalaVersion = v.scala
@@ -34,14 +35,14 @@ class hardfloat extends ScalaModule with SbtModule with PublishModule { m =>
 
   def scalacPluginClasspath = super.scalacPluginClasspath() ++ chisel3PluginJar
 
-  def moduleDeps = super.moduleDeps ++ chisel3Module 
+  def moduleDeps = super.moduleDeps ++ chisel3Module
 
   def ivyDeps = super.ivyDeps() ++ chisel3IvyDeps
 
   def scalacOptions = Seq("-Xsource:2.11")
 
   def publishVersion = "1.5-SNAPSHOT"
-  
+
   def artifactName = "hardfloat"
 
   def repositoriesTask = T.task {
@@ -52,7 +53,7 @@ class hardfloat extends ScalaModule with SbtModule with PublishModule { m =>
   }
 
   object test extends SbtModuleTests {
-    def ivyDeps = Agg(v.scalatest)
+    def ivyDeps = Agg(v.scalatest, v.scalapar)
     def testFramework = "org.scalatest.tools.Framework"
   }
 
