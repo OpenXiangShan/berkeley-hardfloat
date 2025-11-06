@@ -73,9 +73,6 @@ class RawFloat(val expWidth: Int, val sigWidth: Int) extends Bundle
     val sign   = Bool()
     val sExp = SInt(width = expWidth + 2)
     val sig  = UInt(width = sigWidth + 1)   // 2 m.s. bits cannot both be 0
-
-    override def cloneType =
-        new RawFloat(expWidth, sigWidth).asInstanceOf[this.type]
 }
 
 //*** CHANGE THIS INTO A '.isSigNaN' METHOD OF THE 'RawFloat' CLASS:
@@ -83,4 +80,3 @@ object isSigNaNRawFloat
 {
     def apply(in: RawFloat): Bool = in.isNaN && !in.sig(in.sigWidth - 2)
 }
-

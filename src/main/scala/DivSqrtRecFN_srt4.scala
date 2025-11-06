@@ -24,7 +24,7 @@ class SrtTable extends Module {
   var ge = Map[Int, Bool]()
   for(row <- qSelTable){
     for(k <- row){
-      if(!ge.contains(k)) ge = ge + (k -> (io.y.asSInt() >= k.S(8.W)))
+      if(!ge.contains(k)) ge = ge + (k -> (io.y.asSInt >= k.S(8.W)))
     }
   }
   io.q := MuxLookup(io.d, 0.S,
@@ -58,7 +58,7 @@ class OnTheFlyConv(len: Int) extends Module {
   val mask = Reg(SInt(len.W))
   val b_111, b_1100 = Reg(UInt(len.W))
   when(io.resetSqrt){
-    mask := Cat("b1".U(1.W), 0.U((len-1).W)).asSInt()
+    mask := Cat("b1".U(1.W), 0.U((len-1).W)).asSInt
     b_111 := "b111".U(3.W) << (len-5)
     b_1100 := "b1100".U(4.W) << (len-5)
   }.elsewhen(io.enable){
@@ -85,10 +85,10 @@ class OnTheFlyConv(len: Int) extends Module {
     -1 -> (QM, b_111),
     -2 -> (QM, b_1100)
   ).map(
-    m => m._1.S(3.W).asUInt() ->
-      ( ((m._2._1 << Mux(io.qi(0), 1.U, 2.U)).asUInt() & (mask >> io.qi(0)).asUInt()) | m._2._2 )
+    m => m._1.S(3.W).asUInt ->
+      ( ((m._2._1 << Mux(io.qi(0), 1.U, 2.U)).asUInt & (mask >> io.qi(0)).asUInt) | m._2._2 )
   )
-  val sqrtToCsa = MuxLookup(io.qi.asUInt(), 0.U, sqrtToCsaMap)
+  val sqrtToCsa = MuxLookup(io.qi.asUInt, 0.U, sqrtToCsaMap)
 
   val Q_load_00 = Q | b_00
   val Q_load_01 = Q | b_01
@@ -110,16 +110,16 @@ class OnTheFlyConv(len: Int) extends Module {
       2 -> Q_load_10,
       -1 -> QM_load_11,
       -2 -> QM_load_10
-    ).map(m => m._1.S(3.W).asUInt() -> m._2)
+    ).map(m => m._1.S(3.W).asUInt -> m._2)
     val QMConvMap = Seq(
       0 -> QM_load_11,
       1 -> Q_load_00,
       2 -> Q_load_01,
       -1 -> QM_load_10,
       -2 -> QM_load_01
-    ).map(m => m._1.S(3.W).asUInt() -> m._2)
-    Q := MuxLookup(io.qi.asUInt(), 0.U, QConvMap)
-    QM := MuxLookup(io.qi.asUInt(), 0.U, QMConvMap)
+    ).map(m => m._1.S(3.W).asUInt -> m._2)
+    Q := MuxLookup(io.qi.asUInt, 0.U, QConvMap)
+    QM := MuxLookup(io.qi.asUInt, 0.U, QMConvMap)
   }
 
   io.F := sqrtToCsa
@@ -180,7 +180,7 @@ class SigDivSqrt_srt4(len: Int) extends Module {
 
   // partial square root
   val S = conv.io.Q >> 2
-  val s0 :: s1 :: s2 :: s3 :: s4 :: Nil =  S(len-2, len-6).asBools().reverse
+  val s0 :: s1 :: s2 :: s3 :: s4 :: Nil =  S(len-2, len-6).asBools.reverse
   val sqrt_d = Mux(firstCycle, "b101".U(3.W), Mux(s0, "b111".U(3.W), Cat(s2, s3, s4)))
   val div_d = divisor(len-2, len-4)
   val sqrt_y = ws(len+3, len-4) + wc(len+3, len-4)
@@ -200,12 +200,12 @@ class SigDivSqrt_srt4(len: Int) extends Module {
   neg_dx1 := ~dx1
   neg_dx2 := neg_dx1 << 1
 
-  val divCsaIn = MuxLookup(table.io.q.asUInt(), 0.U, Seq(
+  val divCsaIn = MuxLookup(table.io.q.asUInt, 0.U, Seq(
     -1 -> dx1,
     -2 -> dx2,
     1 -> neg_dx1,
     2 -> neg_dx2
-  ).map(m => m._1.S(3.W).asUInt() -> m._2))
+  ).map(m => m._1.S(3.W).asUInt -> m._2))
 
   csa.io.in(0) := ws
   csa.io.in(1) := Mux(isDivReg & !table.io.q(2),  wc | table.io.q(1, 0), wc)
@@ -230,7 +230,7 @@ class SigDivSqrt_srt4(len: Int) extends Module {
     * Div:
     * s s s x. x x x ... x
     */
-  val remSignReg = RegEnable(rem.head(1).asBool(), state===s_recovery)
+  val remSignReg = RegEnable(rem.head(1).asBool, state===s_recovery)
   val isZeroRemReg = RegEnable(rem===0.U, state===s_recovery)
 
   io.in.ready := state === s_idle
@@ -334,7 +334,7 @@ class DivSqrtRawFN_srt4(expWidth: Int, sigWidth: Int) extends Module {
   sigDs.io.in.bits.dsCycles := (io.sigBits + extraBits.U) >> 1
   sigDs.io.kill := io.kill
   sigDs.io.in.bits.sigA := Mux(oddSqrt_S || !io.sqrtOp, sigA_ext, sigA_ext >> 1)
-    
+
   sigDs.io.in.bits.sigB := Cat(rawB_S.sig(sigWidth - 1, 0), 0.U(extraBits.W))
   sigDs.io.in.bits.isDiv := !io.sqrtOp
   sigDs.io.out.ready := true.B

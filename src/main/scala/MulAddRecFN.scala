@@ -62,10 +62,6 @@ class MulAddRecFN_interIo(expWidth: Int, sigWidth: Int) extends Bundle
     val CDom_CAlignDist = UInt(width = log2Up(sigWidth + 1))
     val highAlignedSigC = UInt(width = sigWidth + 2)
     val bit0AlignedSigC = UInt(width = 1)
-
-    override def cloneType =
-        new MulAddRecFN_interIo(
-                expWidth, sigWidth).asInstanceOf[this.type]
 }
 
 //----------------------------------------------------------------------------
@@ -346,4 +342,3 @@ class MulAddRecFN(expWidth: Int, sigWidth: Int) extends chisel3.RawModule
     io.out            := roundRawFNToRecFN.io.out
     io.exceptionFlags := roundRawFNToRecFN.io.exceptionFlags
 }
-

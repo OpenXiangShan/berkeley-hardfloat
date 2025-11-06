@@ -13,9 +13,6 @@ class Stage1ToStage2IO(expWidth: Int, sigWidth: Int) extends Bundle
   val ctrlSigs = Output(new MulAddRecFN_interIo(expWidth, sigWidth))
   val roundingMode = Output(UInt(3.W))
   val detectTininess = Output(Bool())
-
-  override def cloneType =
-    (new Stage1ToStage2IO(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class Stage2ToStage3IO(expWidth: Int, sigWidth: Int) extends Bundle
@@ -25,28 +22,22 @@ class Stage2ToStage3IO(expWidth: Int, sigWidth: Int) extends Bundle
   val ctrlSigs = Output(new MulAddRecFN_interIo(expWidth, sigWidth))
   val roundingMode = Output(UInt(3.W))
   val detectTininess = Output(Bool())
-
-  override def cloneType =
-    (new Stage2ToStage3IO(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class Stage3ToStage4IO(expWidth: Int, sigWidth: Int) extends Bundle {
-  
+
   val CDom_absSigSum = Output(UInt())
-  val CDom_absSigSumExtra = Output(Bool()) 
+  val CDom_absSigSumExtra = Output(Bool())
   val notCDom_signSigSum = Output(Bool())
   val notCDom_absSigSum = Output(UInt())
   val notCDom_reduced2AbsSigSum = Output(UInt())
 
   val notCDom_normDistReduced2 = Output(UInt(log2Up((sigWidth * 2 + 2 + 1) / 2).W))
-  val notCDom_reduced4SigExtra = Output(Bool()) 
+  val notCDom_reduced4SigExtra = Output(Bool())
 
   val ctrlSigs = Output(new MulAddRecFN_interIo(expWidth, sigWidth))
   val roundingMode = Output(UInt(3.W))
   val detectTininess = Output(Bool())
-
-  override def cloneType =
-    (new Stage3ToStage4IO(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class Stage4ToStage5IO(expWidth: Int, sigWidth: Int) extends Bundle {
@@ -55,9 +46,6 @@ class Stage4ToStage5IO(expWidth: Int, sigWidth: Int) extends Bundle {
   val invalidExc = Output(Bool())
   val roundingMode = Output(UInt(3.W))
   val detectTininess = Output(Bool())
-
-  override def cloneType =
-    (new Stage4ToStage5IO(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class MulAddRecFN_pipeline_stage1(expWidth: Int, sigWidth: Int) extends Module {
@@ -198,7 +186,7 @@ class MulAddRecFN_pipeline_stage2(expWidth: Int, sigWidth: Int) extends Module {
   csa.io.in(0) := io.mulSum
   csa.io.in(1) := io.mulCarry
   csa.io.in(2) := mulAddC
-  
+
   //val mulAddResult = csa.io.out(0) + Cat(csa.io.out(1), 0.U(1.W))
 
   io.fromStage1.ready := io.toStage3.ready
@@ -251,17 +239,17 @@ class MulAddRecFN_pipeline_stage3(expWidth: Int, sigWidth: Int) extends Module {
     )
   val CDom_absSigSumExtra =
     Mux(doSubMags,
-      ((~sigSum(sigWidth, 1)).asUInt()).orR,
+      ((~sigSum(sigWidth, 1)).asUInt).orR,
       sigSum(sigWidth + 1, 1).orR
     )
- 
+
 
   val notCDom_signSigSum = sigSum(sigWidth * 2 + 3)
   val notCDom_absSigSum =
     Mux(notCDom_signSigSum,
       ~sigSum(sigWidth * 2 + 2, 0),
       sigSum(sigWidth * 2 + 2, 0) + doSubMags
-    ).asUInt()
+    ).asUInt
   val notCDom_reduced2AbsSigSum = orReduceBy2(notCDom_absSigSum)
   val notCDom_normDistReduced2 = countLeadingZeros(notCDom_reduced2AbsSigSum)
 
@@ -269,8 +257,8 @@ class MulAddRecFN_pipeline_stage3(expWidth: Int, sigWidth: Int) extends Module {
 /*
   val notCDom_reduced4SigExtra =
     (orReduceBy2(
-      (notCDom_reduced2AbsSigSum(sigWidth>>1, 0)<<((sigWidth>>1) & 1)).asUInt()) &
-      lowMask((notCDom_normDistReduced2>>1).asUInt(), 0, (sigWidth + 2)>>2)
+      (notCDom_reduced2AbsSigSum(sigWidth>>1, 0)<<((sigWidth>>1) & 1)).asUInt) &
+      lowMask((notCDom_normDistReduced2>>1).asUInt, 0, (sigWidth + 2)>>2)
       ).orR
 */
 
@@ -282,7 +270,7 @@ class MulAddRecFN_pipeline_stage3(expWidth: Int, sigWidth: Int) extends Module {
   io.toStage4.bits.CDom_absSigSum := CDom_absSigSum
   io.toStage4.bits.CDom_absSigSumExtra := CDom_absSigSumExtra
 
-  io.toStage4.bits.notCDom_signSigSum := notCDom_signSigSum 
+  io.toStage4.bits.notCDom_signSigSum := notCDom_signSigSum
   io.toStage4.bits.notCDom_absSigSum := notCDom_absSigSum
   io.toStage4.bits.notCDom_reduced2AbsSigSum := notCDom_reduced2AbsSigSum
   io.toStage4.bits.notCDom_normDistReduced2 := notCDom_normDistReduced2
@@ -342,18 +330,18 @@ class MulAddRecFN_pipeline_stage4(expWidth: Int, sigWidth: Int) extends Module {
 //    )
 //  val CDom_absSigSumExtra =
 //    Mux(doSubMags,
-//      ((~sigSum(sigWidth, 1)).asUInt()).orR,
+//      ((~sigSum(sigWidth, 1)).asUInt).orR,
 //      sigSum(sigWidth + 1, 1).orR
 //    )
 
-  val CDom_absSigSum = io.fromStage3.bits.CDom_absSigSum 
+  val CDom_absSigSum = io.fromStage3.bits.CDom_absSigSum
   val CDom_absSigSumExtra = io.fromStage3.bits.CDom_absSigSumExtra
   val CDom_mainSig =
     (CDom_absSigSum<<CDom_CAlignDist)(
       sigWidth * 2 + 1, sigWidth - 3)
   val CDom_reduced4SigExtra =
-    (orReduceBy4((CDom_absSigSum(sigWidth - 1, 0)<<(~sigWidth & 3)).asUInt()) &
-      lowMask((CDom_CAlignDist>>2).asUInt(), 0, sigWidth>>2)).orR
+    (orReduceBy4((CDom_absSigSum(sigWidth - 1, 0)<<(~sigWidth & 3)).asUInt) &
+      lowMask((CDom_CAlignDist>>2).asUInt, 0, sigWidth>>2)).orR
   val CDom_sig =
     Cat(CDom_mainSig>>3,
       CDom_mainSig(2, 0).orR || CDom_reduced4SigExtra ||
@@ -368,34 +356,34 @@ class MulAddRecFN_pipeline_stage4(expWidth: Int, sigWidth: Int) extends Module {
     Mux(notCDom_signSigSum,
       ~sigSum(sigWidth * 2 + 2, 0),
       sigSum(sigWidth * 2 + 2, 0) + doSubMags
-    ).asUInt()
+    ).asUInt
   val notCDom_reduced2AbsSigSum = orReduceBy2(notCDom_absSigSum)
   val notCDom_normDistReduced2 = countLeadingZeros(notCDom_reduced2AbsSigSum)
   */
 
-  val notCDom_absSigSum = io.fromStage3.bits.notCDom_absSigSum 
+  val notCDom_absSigSum = io.fromStage3.bits.notCDom_absSigSum
   val notCDom_normDistReduced2 = io.fromStage3.bits.notCDom_normDistReduced2
-  val notCDom_reduced2AbsSigSum = io.fromStage3.bits.notCDom_reduced2AbsSigSum 
+  val notCDom_reduced2AbsSigSum = io.fromStage3.bits.notCDom_reduced2AbsSigSum
 
-  val notCDom_nearNormDist = (notCDom_normDistReduced2<<1).asUInt()
+  val notCDom_nearNormDist = (notCDom_normDistReduced2<<1).asUInt
   val notCDom_sExp = io.fromStage3.bits.ctrlSigs.sExpSum - notCDom_nearNormDist.zext
   val notCDom_mainSig =
     (notCDom_absSigSum<<notCDom_nearNormDist)(
       sigWidth * 2 + 3, sigWidth - 1)
-  
-  
+
+
   val notCDom_reduced4SigExtra =
     (orReduceBy2(
-      (notCDom_reduced2AbsSigSum(sigWidth>>1, 0)<<((sigWidth>>1) & 1)).asUInt()) &
-      lowMask((notCDom_normDistReduced2>>1).asUInt(), 0, (sigWidth + 2)>>2)
+      (notCDom_reduced2AbsSigSum(sigWidth>>1, 0)<<((sigWidth>>1) & 1)).asUInt) &
+      lowMask((notCDom_normDistReduced2>>1).asUInt, 0, (sigWidth + 2)>>2)
       ).orR
- 
-  
-  val notCDom_signSigSum  = io.fromStage3.bits.notCDom_signSigSum 
+
+
+  val notCDom_signSigSum  = io.fromStage3.bits.notCDom_signSigSum
   //val notCDom_reduced4SigExtra = io.fromStage3.bits.notCDom_reduced4SigExtra
   val notCDom_sig =
     Cat(notCDom_mainSig>>3,
-      notCDom_mainSig(2, 0).orR || notCDom_reduced4SigExtra 
+      notCDom_mainSig(2, 0).orR || notCDom_reduced4SigExtra
     )
   val notCDom_completeCancellation =
     (notCDom_sig(sigWidth + 2, sigWidth + 1) === 0.U)
@@ -472,17 +460,11 @@ class MulAddRecFN_pipelineInput(expWidth: Int, sigWidth: Int) extends Bundle {
   val c = UInt((expWidth + sigWidth + 1).W)
   val roundingMode = UInt(3.W)
   val detectTininess = UInt(1.W)
-
-  override def cloneType =
-    (new MulAddRecFN_pipelineInput(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class MulAddRecFN_pipelineOutput(expWidth: Int, sigWidth: Int) extends Bundle {
   val out = Output(UInt((expWidth + sigWidth + 1).W))
   val exceptionFlags = Output(UInt(5.W))
-
-  override def cloneType =
-    (new MulAddRecFN_pipelineOutput(expWidth, sigWidth)).asInstanceOf[this.type]
 }
 
 class MulAddRecFN_pipeline(expWidth: Int, sigWidth: Int) extends Module {
@@ -493,7 +475,7 @@ class MulAddRecFN_pipeline(expWidth: Int, sigWidth: Int) extends Module {
   })
 
   def pipelineConnect[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]) = {
-    val data = RegEnable(next = left.bits, enable = left.fire())
+    val data = RegEnable(left.bits, left.fire())
     val valid = RegInit(false.B)
     left.ready := !valid || right.ready
     right.valid := valid

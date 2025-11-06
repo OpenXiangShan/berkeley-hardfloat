@@ -147,7 +147,7 @@ rem(i+1) = 2rem_i - ci*(2sig_i + bit_i)
 ci = 2*sig_i + bit_i <= 2*rem_i
 bit_i = 2^(cycle_i-2) (in terms of bit representation)
 cycle(i+1) = cycle_i-1
-summary_1 = a - (2^s) (in terms of bit representation) 
+summary_1 = a - (2^s) (in terms of bit representation)
 summary(i+1) = if ci then rem(i+1) <> 0 else summary_i, i <> 0
 
 
@@ -382,7 +382,7 @@ class
         processTwoBits && !newBit && (0.S < (rem_Z<<2)(sigWidth+2, 0).zext - trialTerm2_newBit0.zext) ||
         !(processTwoBits && newBit2) && nextNotZeroRem_Z
     val nextRem_Z_2 =
-        Mux(processTwoBits && newBit2,  trialRem2.asUInt()(sigWidth + 1, 0), 0.U) |
+        Mux(processTwoBits && newBit2,  trialRem2.asUInt(sigWidth + 1, 0), 0.U) |
         Mux(processTwoBits && !newBit2, rem2(sigWidth + 1, 0),               0.U) |
         Mux(!processTwoBits,            nextRem_Z,                           0.U)
 
@@ -512,4 +512,3 @@ class
     io.exceptionFlags := roundRawFNToRecFN.io.exceptionFlags
 
 }
-
