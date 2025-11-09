@@ -27,7 +27,7 @@ class SrtTable extends Module {
       if(!ge.contains(k)) ge = ge + (k -> (io.y.asSInt >= k.S(8.W)))
     }
   }
-  io.q := MuxLookup(io.d, 0.S,
+  io.q := MuxLookup(io.d, 0.S)(
     qSelTable.map(x =>
       MuxCase((-2).S(3.W), Seq(
         ge(x(0)) -> 2.S(3.W),
@@ -88,7 +88,7 @@ class OnTheFlyConv(len: Int) extends Module {
     m => m._1.S(3.W).asUInt ->
       ( ((m._2._1 << Mux(io.qi(0), 1.U, 2.U)).asUInt & (mask >> io.qi(0)).asUInt) | m._2._2 )
   )
-  val sqrtToCsa = MuxLookup(io.qi.asUInt, 0.U, sqrtToCsaMap)
+  val sqrtToCsa = MuxLookup(io.qi.asUInt, 0.U)(sqrtToCsaMap)
 
   val Q_load_00 = Q | b_00
   val Q_load_01 = Q | b_01
@@ -118,8 +118,8 @@ class OnTheFlyConv(len: Int) extends Module {
       -1 -> QM_load_10,
       -2 -> QM_load_01
     ).map(m => m._1.S(3.W).asUInt -> m._2)
-    Q := MuxLookup(io.qi.asUInt, 0.U, QConvMap)
-    QM := MuxLookup(io.qi.asUInt, 0.U, QMConvMap)
+    Q := MuxLookup(io.qi.asUInt, 0.U)(QConvMap)
+    QM := MuxLookup(io.qi.asUInt, 0.U)(QMConvMap)
   }
 
   io.F := sqrtToCsa
@@ -200,7 +200,7 @@ class SigDivSqrt_srt4(len: Int) extends Module {
   neg_dx1 := ~dx1
   neg_dx2 := neg_dx1 << 1
 
-  val divCsaIn = MuxLookup(table.io.q.asUInt, 0.U, Seq(
+  val divCsaIn = MuxLookup(table.io.q.asUInt, 0.U)(Seq(
     -1 -> dx1,
     -2 -> dx2,
     1 -> neg_dx1,
