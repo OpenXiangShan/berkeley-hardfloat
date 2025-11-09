@@ -2,7 +2,6 @@ package hardfloat
 
 import chisel3._
 import chisel3.util._
-import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
 import consts._
 
 class Stage1ToStage2IO(expWidth: Int, sigWidth: Int) extends Bundle
