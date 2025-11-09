@@ -143,8 +143,8 @@ class SigDivSqrt_srt4(len: Int) extends Module {
 
   val (a, b) = (io.in.bits.sigA, io.in.bits.sigB)
   val isDiv = io.in.bits.isDiv
-  val isDivReg = RegEnable(isDiv, io.in.fire())
-  val divisor = RegEnable(b, io.in.fire())
+  val isDivReg = RegEnable(isDiv, io.in.fire)
+  val divisor = RegEnable(b, io.in.fire)
 
   val s_idle :: s_recurrence :: s_recovery :: s_finish :: Nil = Enum(4)
   val state = RegInit(s_idle)
@@ -153,11 +153,11 @@ class SigDivSqrt_srt4(len: Int) extends Module {
   cnt_next := Mux(state === s_idle, io.in.bits.dsCycles, cnt - 1.U)
 
 
-  val firstCycle = RegNext(io.in.fire())
+  val firstCycle = RegNext(io.in.fire)
 
   switch(state){
     is(s_idle){
-      when(io.in.fire()){ state := s_recurrence }
+      when(io.in.fire){ state := s_recurrence }
     }
     is(s_recurrence){
       when(cnt_next === 0.U){ state := s_recovery }
@@ -166,7 +166,7 @@ class SigDivSqrt_srt4(len: Int) extends Module {
       state := s_finish
     }
     is(s_finish){
-      when(io.out.fire()){ state := s_idle }
+      when(io.out.fire){ state := s_idle }
     }
   }
   when(io.kill){ state := s_idle }
@@ -189,8 +189,8 @@ class SigDivSqrt_srt4(len: Int) extends Module {
   table.io.d := Mux(isDivReg, div_d, sqrt_d)
   table.io.y := Mux(isDivReg, div_y, sqrt_y)
 
-  conv.io.resetSqrt := io.in.fire() && !isDiv
-  conv.io.resetDiv := io.in.fire() && isDiv
+  conv.io.resetSqrt := io.in.fire && !isDiv
+  conv.io.resetDiv := io.in.fire && isDiv
   conv.io.enable := state===s_recurrence
   conv.io.qi := table.io.q
 
@@ -214,7 +214,7 @@ class SigDivSqrt_srt4(len: Int) extends Module {
   val divWsInit =  a
   val sqrtWsInit = Cat( Cat(0.U(2.W), a) - Cat(1.U(2.W), 0.U(len.W)), 0.U(2.W))
 
-  when(io.in.fire()){
+  when(io.in.fire){
     ws := Mux(isDiv, divWsInit, sqrtWsInit)
     wc := 0.U
   }.elsewhen(state === s_recurrence){
@@ -343,7 +343,7 @@ class DivSqrtRawFN_srt4(expWidth: Int, sigWidth: Int) extends Module {
   val s_idle :: s_comp :: s_special :: Nil = Enum(3)
   val state = RegInit(s_idle)
 
-  val rawOutValid = sigDs.io.out.fire() || state === s_special
+  val rawOutValid = sigDs.io.out.fire || state === s_special
 
   switch(state){
     is(s_idle){
@@ -356,7 +356,7 @@ class DivSqrtRawFN_srt4(expWidth: Int, sigWidth: Int) extends Module {
       }
     }
     is(s_comp){
-      when(sigDs.io.out.fire()){
+      when(sigDs.io.out.fire){
         state := s_idle
       }
     }

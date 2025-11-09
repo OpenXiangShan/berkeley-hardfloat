@@ -99,8 +99,8 @@ class ValExec_MulAddRecFN_pipeline(expWidth: Int, sigWidth: Int) extends Module
 
   cq.io.deq.ready := mulAddRecFN.io.out.valid
 
-  io.check := cq.io.deq.fire()
-  io.pass := cq.io.deq.fire() &&
+  io.check := cq.io.deq.fire
+  io.pass := cq.io.deq.fire &&
 	equivRecFN(expWidth, sigWidth, io.actual.out, io.expected.recOut) &&
 	  (io.actual.exceptionFlags === io.expected.exceptionFlags)
 }
@@ -154,8 +154,8 @@ class ValExec_MulAddRecFN_pipeline_add(expWidth: Int, sigWidth: Int) extends Mod
 
   cq.io.deq.ready := mulAddRecFN.io.out.valid
 
-  io.check := cq.io.deq.fire()
-  io.pass := cq.io.deq.fire() &&
+  io.check := cq.io.deq.fire
+  io.pass := cq.io.deq.fire &&
 	equivRecFN(expWidth, sigWidth, io.actual.out, io.expected.recOut) &&
 	  (io.actual.exceptionFlags === io.expected.exceptionFlags)
 }
@@ -209,8 +209,8 @@ class ValExec_MulAddRecFN_pipeline_mul(expWidth: Int, sigWidth: Int) extends Mod
 
   cq.io.deq.ready := mulAddRecFN.io.out.valid
 
-  io.check := cq.io.deq.fire()
-  io.pass := cq.io.deq.fire() &&
+  io.check := cq.io.deq.fire
+  io.pass := cq.io.deq.fire &&
 	equivRecFN(expWidth, sigWidth, io.actual.out, io.expected.recOut) &&
 	  (io.actual.exceptionFlags === io.expected.exceptionFlags)
 }

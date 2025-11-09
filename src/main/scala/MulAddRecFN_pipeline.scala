@@ -475,15 +475,15 @@ class MulAddRecFN_pipeline(expWidth: Int, sigWidth: Int) extends Module {
   })
 
   def pipelineConnect[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]) = {
-    val data = RegEnable(left.bits, left.fire())
+    val data = RegEnable(left.bits, left.fire)
     val valid = RegInit(false.B)
     left.ready := !valid || right.ready
     right.valid := valid
     right.bits := data
-    when(right.fire()){
+    when(right.fire){
       valid := false.B
     }
-    when(left.fire()){
+    when(left.fire){
       valid := true.B
     }
   }
@@ -509,7 +509,7 @@ class MulAddRecFN_pipeline(expWidth: Int, sigWidth: Int) extends Module {
   ))
   multiplier.io.a := stage1.io.mulAddA
   multiplier.io.b := stage1.io.mulAddB
-  multiplier.io.reg_en := stage1.io.toStage2.fire()
+  multiplier.io.reg_en := stage1.io.toStage2.fire
 
   stage2.io.mulSum := multiplier.io.sum
   stage2.io.mulCarry := multiplier.io.carry
